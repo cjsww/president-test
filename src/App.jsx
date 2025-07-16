@@ -1,14 +1,15 @@
 // src/App.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { loadModel, predict } from './utils/modelUtils';
-import './index.css';
+import './index.css'; // Tailwind CSS를 위한 기본 임포트
 
 function App() {
   const [modelLoaded, setModelLoaded] = useState(false);
   const [predictionResult, setPredictionResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null); // 화면에 보여줄 이미지 URL 상태
-  const imageRef = useRef(null); // Teachable Machine 모델 예측에 사용할 숨겨진 이미지 ref
+  // imageRef는 이제 직접 predict에 사용되지 않고, 필요에 따라 숨겨진 DOM 요소를 참조할 수 있도록 유지합니다.
+  const imageRef = useRef(null);
 
   // 컴포넌트 마운트 시 모델 로드
   useEffect(() => {
@@ -44,25 +45,21 @@ function App() {
     reader.onload = async (e) => {
       const imgDataUrl = e.target.result; // Data URL 획득
 
-      // 1. 화면에 보여줄 이미지 URL 업데이트 (React가 <img>를 렌더링)
+      // 1. 화면에 보여줄 이미지 URL 업데이트
       setUploadedImageUrl(imgDataUrl);
 
       // 2. 모델 예측에 사용할 이미지 로드 및 예측
-      // 이 부분은 imageRef.current가 DOM에 연결된 후에 실행되어야 합니다.
-      // useEffect를 사용하여 uploadedImageUrl이 업데이트된 후에 예측을 수행하는 것이 더 견고할 수 있습니다.
-      // 하지만, 빠른 예측을 위해 여기서 바로 시도합니다.
-      // *주의*: imageRef.current는 다음 렌더링 사이클에 연결될 수 있으므로, 바로 접근 시 null일 수 있습니다.
-      // 따라서, 아래에서처럼 ref가 아닌 새로운 Image 객체를 만들어서 predict에 전달하는 것이 더 안전합니다.
-
       const tempImgForPrediction = new Image();
       tempImgForPrediction.src = imgDataUrl;
 
       tempImgForPrediction.onload = async () => {
-        // 이제 tempImgForPrediction은 예측에 사용될 수 있는 완전한 이미지입니다.
+        // 이미지가 완전히 로드된 후에 예측을 수행합니다.
         try {
           const predictions = await predict(tempImgForPrediction); // tempImgForPrediction 사용
-          setPredictionResult(predictions);
-          console.log("예측 결과:", predictions);
+          // '대통령' 클래스의 예측 결과만 찾아서 저장합니다.
+          const presidentPrediction = predictions.find(p => p.className === '대통령');
+          setPredictionResult(presidentPrediction); // '대통령' 클래스만 저장
+          console.log("예측 결과 (대통령):", presidentPrediction);
         } catch (error) {
           alert(`이미지 예측 중 오류 발생: ${error.message}`);
         } finally {
@@ -97,7 +94,7 @@ function App() {
         type="file"
         accept="image/*"
         onChange={handleImageUpload}
-        className="hidden"
+        className="hidden" // 실제 input은 숨김
         id="file-upload"
       />
       <label
@@ -111,8 +108,10 @@ function App() {
         <p className="text-lg text-gray-600 mt-4 animate-pulse text-center w-full">사진 분석 중...</p>
       )}
 
+      {/* 예측용 숨겨진 이미지 태그 */}
       <img ref={imageRef} alt="Hidden for prediction" style={{ display: 'none' }} />
 
+      {/* 업로드된 이미지를 보여주는 부분 */}
       {uploadedImageUrl && (
         <div className="mt-8 p-4 bg-white rounded-lg shadow-md w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg text-center">
           <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800">업로드된 사진</h2>
@@ -124,15 +123,34 @@ function App() {
         </div>
       )}
 
+      {/* 예측 결과 표시 부분 (대통령 수치만) */}
       {predictionResult && (
         <div className="mt-8 p-6 bg-white rounded-lg shadow-xl text-center w-full max-w-xs sm:max-w-sm md:max-w-md">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800">예측 결과</h2>
-          {predictionResult.map((p, index) => (
-            <p key={index} className="text-lg md:text-xl text-gray-700 mb-2">
-              <span className="font-semibold">{p.className}:</span>{' '}
-              <span className="text-blue-600">{Math.round(p.probability * 100)}%</span>
-            </p>
-          ))}
+          <p className="text-lg md:text-xl text-gray-700 mb-2">
+            <span className="font-semibold">{predictionResult.className}:</span>{' '}
+            <span className="text-blue-600">{Math.round(predictionResult.probability * 100)}%</span>
+          </p>
+          <button
+            onClick={() => {
+              setPredictionResult(null);
+              setUploadedImageUrl(null);
+              const fileInput = document.getElementById('file-upload');
+              if (fileInput) fileInput.value = '';
+            }}
+            className="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md w-full max-w-xs mx-auto"
+          >
+            다시 시도
+          </button>
+        </div>
+      )}
+      {/* 예측 결과가 있지만 '대통령' 클래스가 없는 경우 (선택 사항) */}
+      {uploadedImageUrl && !loading && !predictionResult && (
+        <div className="mt-8 p-6 bg-white rounded-lg shadow-xl text-center w-full max-w-xs sm:max-w-sm md:max-w-md">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800">예측 결과</h2>
+          <p className="text-lg md:text-xl text-gray-700 mb-2">
+            '대통령' 클래스에 대한 예측 결과를 찾을 수 없습니다.
+          </p>
           <button
             onClick={() => {
               setPredictionResult(null);
