@@ -141,6 +141,91 @@ function App() {
     setLoading(false); // 로딩 상태 초기화
   };
 
+  // 예측 결과 퍼센트에 따른 유머러스한 문구 반환 함수 (더 세분화 및 랜덤 선택)
+  const getHumorousMessage = (probability) => {
+    const percentage = Math.round(probability * 100);
+
+    const messages = {
+      '95+': [
+        "🎉 맙소사! 당신은 이미 대통령이십니다! 어서 나라를 구해주세요!",
+        "👑 이 정도면 관상이 아니라 운명입니다!",
+        "✨ 빛이 나는군요! 당신의 얼굴에서 국운이 느껴집니다. 취임 준비하세요!"
+      ],
+      '90-94': [
+        "✨ 대통령의 기운이 뿜어져 나옵니다! 곧 청와대에서 뵙겠군요!",
+        "🌟 범상치 않은 아우라! 당신은 분명 큰 인물이 될 상입니다.",
+        "💖 와우! 대통령의 DNA가 흐르는군요. 국민들이 당신을 기다립니다!"
+      ],
+      '80-89': [
+        "🌟 거의 대통령급 관상이네요! 주변 사람들에게 덕망이 두터울 상입니다.",
+        "👍 당신의 얼굴엔 숨겨진 위엄이 있습니다. 리더의 상이 확실하군요!",
+        "🤩 훌륭한 리더의 얼굴입니다. 축하드립니다!"
+      ],
+      '70-79': [
+        "👍 국무총리는 가능할지도?",
+        "😊 꽤 높은 확률! 당신의 얼굴엔 숨겨진 위엄이 있군요.",
+        "🤔 관상 전문가도 놀랄 만한 결과! 당신은 특별합니다."
+      ],
+      '60-69': [
+        "😊 꽤 높은 확률! 당신의 얼굴엔 숨겨진 위엄이 있군요.",
+        "😅 장관까진 가능할지도?",
+        "💡 잠재력 폭발! 당신의 미래는 밝습니다. 힘내세요!"
+      ],
+      '50-59': [
+        "🤔 음... 반은 왔습니다. 잠재력을 키워보세요!",
+        "😅 적당한 운은 타고났네요.",
+        "😅 아직은 좀 더 갈고닦아야 할 관상이지만, 노력하면 빛을 볼 겁니다!"
+      ],
+      '40-49': [
+        "😅 대통령이 아니어도 괜찮아! 당신은 당신만의 매력이 있습니다.",
+        "😂 대통령과는 거리가 좀 있지만, 당신만의 특별함이 빛나는군요!",
+        "👀 관상보다는 인성이 중요하죠! 당신은 좋은 사람입니다."
+      ],
+      '30-39': [
+        "😂 대통령과는 거리가 좀 있지만, 당신만의 특별함이 빛나는군요!",
+        "👀 걱정 마세요! 대통령은 아무나 하는 게 아니죠. 당신은 당신만의 매력이 있습니다!",
+        "🤷‍♀️ 관상 점수는 낮지만, 당신의 행복 지수는 높을 겁니다! (아마도?)"
+      ],
+      '10-29': [
+        "👀 걱정 마세요! 대통령은 아무나 하는 게 아니죠. 당신은 당신만의 매력이 있습니다!",
+        "😂 0%에 가깝다고요? 오히려 좋아! 당신은 자유로운 영혼의 소유자입니다!",
+        "🤷‍♀️ 이 정도면 관상보다는 개성이 강한 얼굴입니다. 독특함 최고!"
+      ],
+      '0-9': [
+        "😂 0%에 가깝다고요? 오히려 좋아! 당신은 자유로운 영혼의 소유자입니다!",
+        "🤣 대통령상과는 거리가 멀지만, 당신은 분명 행복상입니다!",
+        "🤔 음... 혹시 지나가던 파리가 찍힌게 아닐까요? 다시 한번 도전!"
+      ]
+    };
+
+    let selectedMessages;
+    if (percentage >= 95) {
+      selectedMessages = messages['95+'];
+    } else if (percentage >= 90) {
+      selectedMessages = messages['90-94'];
+    } else if (percentage >= 80) {
+      selectedMessages = messages['80-89'];
+    } else if (percentage >= 70) {
+      selectedMessages = messages['70-79'];
+    } else if (percentage >= 60) {
+      selectedMessages = messages['60-69'];
+    } else if (percentage >= 50) {
+      selectedMessages = messages['50-59'];
+    } else if (percentage >= 40) {
+      selectedMessages = messages['40-49'];
+    } else if (percentage >= 30) {
+      selectedMessages = messages['30-39'];
+    } else if (percentage >= 10) {
+      selectedMessages = messages['10-29'];
+    } else {
+      selectedMessages = messages['0-9'];
+    }
+
+    // 선택된 메시지 배열에서 랜덤으로 하나 선택
+    const randomIndex = Math.floor(Math.random() * selectedMessages.length);
+    return selectedMessages[randomIndex];
+  };
+
   // 웹캠 모드일 경우 웹캠 컴포넌트만 렌더링
   if (isWebcamMode) {
     return (
@@ -171,7 +256,7 @@ function App() {
       </p>
 
       {/* 도사 이미지 또는 모델 로딩 중 메시지 표시 */}
-      <div className="my-8 flex items-center justify-center w-40 h-40 md:w-48 md:h-48 rounded-full">
+      <div className="my-8 flex items-center justify-center w-40 h-40 md:w-48 md:h-48 rounded-full bg-white dark:bg-gray-800 shadow-lg border-4 border-gray-300 dark:border-gray-700">
         {!modelLoaded ? ( // 모델이 로드되지 않았을 때
           <p className="text-center text-gray-700 dark:text-gray-300 text-sm md:text-base animate-pulse">모델 로딩 중...</p>
         ) : ( // 모델 로드 완료 시
@@ -182,6 +267,15 @@ function App() {
           />
         )}
       </div>
+
+      {/* 광고 단위 1: 도사 이미지/로딩 메시지 아래 (제거됨) */}
+      {/* <div className="my-4 w-full max-w-sm md:max-w-md bg-white dark:bg-gray-800 p-2 rounded-lg shadow-md text-center">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">광고</p>
+        <ins className="adsbygoogle"
+             style={{ display: 'block', width: '100%', height: '100px' }}
+             data-ad-client="ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
+             data-ad-slot="YOUR_ADSENSE_AD_SLOT_ID_1"></ins>
+      </div> */}
 
       <div className="flex flex-col sm:flex-row gap-4 mb-4 w-full max-w-xs sm:max-w-md">
         <input
@@ -235,6 +329,10 @@ function App() {
             </span>{' '}
             <span className="text-blue-600">{Math.round(predictionResult.probability * 100)}%</span>
           </p>
+          {/* 유머러스한 문구 표시 */}
+          <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 mt-4 mb-6">
+            {getHumorousMessage(predictionResult.probability)}
+          </p>
           <button
             onClick={() => {
               setPredictionResult(null);
@@ -268,6 +366,16 @@ function App() {
           </button>
         </div>
       )}
+
+      {/* 광고 단위 2: 페이지 하단 (제거됨) */}
+      {/* <div className="my-8 w-full max-w-sm md:max-w-md bg-white dark:bg-gray-800 p-2 rounded-lg shadow-md text-center">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">광고</p>
+        <ins className="adsbygoogle"
+             style={{ display: 'block', width: '100%', height: '100px' }}
+             data-ad-client="ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
+             data-ad-slot="YOUR_ADSENSE_AD_SLOT_ID_2"></ins>
+      </div> */}
+
       <p className="mt-8 text-sm text-gray-500 dark:text-gray-400 text-center">
         *사진은 절대 어디에도 저장되지 않습니다.*
       </p>
