@@ -1,7 +1,7 @@
 // src/utils/modelUtils.js
 import * as tmImage from '@teachablemachine/image';
 
-const MODEL_URL = "https://teachablemachine.withgoogle.com/models/qropKBFqOz/"; // 여기에 본인의 모델 URL을 넣어주세요!
+const MODEL_URL = "https://teachablemachine.withgoogle.com/models/AQniBgBqg/"; // 여기에 본인의 모델 URL을 넣어주세요!
 
 let model;
 let maxPredictions;
