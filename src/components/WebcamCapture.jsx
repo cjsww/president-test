@@ -58,9 +58,10 @@ function WebcamCapture({ onCapture, onCancel }) {
             ref={webcamRef}
             screenshotFormat="image/jpeg"
             videoConstraints={videoConstraints}
-            className={`rounded-lg shadow-inner w-full h-auto ${isCameraReady ? '' : 'hidden'}`} // Hide webcam until ready
+            className={`rounded-lg shadow-inner w-full h-auto ${isCameraReady ? '' : 'hidden'}`}
             onUserMedia={handleUserMedia}
             onUserMediaError={handleUserMediaError}
+            style={{ transform: 'scaleX(-1)' }} // 거울모드 적용
           />
           {isCameraReady && ( // Only show buttons when camera is ready
             <button
@@ -79,7 +80,7 @@ function WebcamCapture({ onCapture, onCancel }) {
         </>
       ) : (
         <>
-          <img src={imgSrc} alt="Captured" className="rounded-lg shadow-inner w-full h-auto" />
+          <img src={imgSrc} alt="Captured" className="rounded-lg shadow-inner w-full h-auto" style={{ transform: 'scaleX(-1)' }} />
           <div className="flex mt-4 space-x-2 w-full">
             <button
               onClick={confirmCapture}
