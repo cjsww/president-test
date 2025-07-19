@@ -268,40 +268,45 @@ function App() {
       </p>
 
       {/* 도사 이미지 또는 모델 로딩 중 메시지 표시 */}
-      <div className="my-8 flex items-center justify-center w-40 h-40 md:w-48 md:h-48 rounded-full bg-white dark:bg-gray-800 shadow-lg border-4 border-gray-300 dark:border-gray-700">
-        {!modelLoaded && isModelLoading ? ( // 모델 로딩 중일 때만 표시
-          <p className="text-center text-gray-700 dark:text-gray-300 text-sm md:text-base animate-pulse">모델 로딩 중...</p>
-        ) : ( // 모델 로드 완료 시
-          <img
-            src={dosaimage} // 도사 이미지 사용
-            alt="도사 이미지"
-            className="rounded-full w-full h-full object-cover" // 부모 div에 꽉 차도록
-          />
-        )}
-      </div>
+      {!predictionResult && (
+        <div className="my-8 flex items-center justify-center w-40 h-40 md:w-48 md:h-48 rounded-full bg-white dark:bg-gray-800 shadow-lg border-4 border-gray-300 dark:border-gray-700">
+          {!modelLoaded && isModelLoading ? (
+            <p className="text-center text-gray-700 dark:text-gray-300 text-sm md:text-base animate-pulse">모델 로딩 중...</p>
+          ) : (
+            <img
+              src={dosaimage}
+              alt="도사 이미지"
+              className="rounded-full w-full h-full object-cover"
+            />
+          )}
+        </div>
+      )}
+
 
       {/* 파일 업로드 및 카메라 촬영 버튼 그룹 */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-4 w-full max-w-xs sm:max-w-md">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="hidden"
-          id="file-upload"
-        />
-        <label
-          htmlFor="file-upload"
-          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg cursor-pointer transition duration-300 ease-in-out text-lg shadow-md text-center"
-        >
-          사진 업로드
-        </label>
-        <button
-          onClick={() => setIsWebcamMode(true)}
-          className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out text-lg shadow-md"
-        >
-          카메라 촬영
-        </button>
-      </div>
+      {!predictionResult && (
+        <div className="flex flex-col sm:flex-row gap-4 mb-4 w-full max-w-xs sm:max-w-md">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="hidden"
+            id="file-upload"
+          />
+          <label
+            htmlFor="file-upload"
+            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg cursor-pointer transition duration-300 ease-in-out text-lg shadow-md text-center"
+          >
+            사진 업로드
+          </label>
+          <button
+            onClick={() => setIsWebcamMode(true)}
+            className="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out text-lg shadow-md"
+          >
+            카메라 촬영
+          </button>
+        </div>
+      )}
 
       {/* 이미지 분석 중 메시지 */}
       {isImageAnalyzing && (
