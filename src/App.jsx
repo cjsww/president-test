@@ -15,7 +15,10 @@ const Theme = {
 function App() {
   const [modelLoaded, setModelLoaded] = useState(false);
   const [predictionResult, setPredictionResult] = useState(null);
-  const [loading, setLoading] = useState(false);
+  // 모델 로딩 상태를 위한 새로운 변수
+  const [isModelLoading, setIsModelLoading] = useState(false);
+  // 이미지 분석 상태를 위한 새로운 변수
+  const [isImageAnalyzing, setIsImageAnalyzing] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null); // 화면에 보여줄 이미지 URL 상태
   const [isWebcamMode, setIsWebcamMode] = useState(false); // 웹캠 모드 활성화 여부
   const [theme, setTheme] = useState(() => {
@@ -32,14 +35,14 @@ function App() {
   // 컴포넌트 마운트 시 모델 로드
   useEffect(() => {
     const initModel = async () => {
-      setLoading(true); // 모델 로딩 시작 시 로딩 상태 true
+      setIsModelLoading(true); // 모델 로딩 시작 시 로딩 상태 true
       try {
         await loadModel();
         setModelLoaded(true); // 모델 로드 완료 시 modelLoaded true
       } catch (error) {
         alert(`모델 로드 중 오류 발생: ${error.message}`);
       } finally {
-        setLoading(false); // 로딩 완료 또는 오류 발생 시 로딩 상태 false
+        setIsModelLoading(false); // 로딩 완료 또는 오류 발생 시 로딩 상태 false
       }
     };
     initModel();
@@ -82,7 +85,7 @@ function App() {
 
   // 이미지 처리 및 예측을 위한 공통 함수
   const processImageForPrediction = async (imgDataUrl) => {
-    setLoading(true);
+    setIsImageAnalyzing(true); // 이미지 분석 시작 시 상태 true
     setPredictionResult(null); // 새로운 예측 시 기존 결과 초기화
     setUploadedImageUrl(null); // 새로운 예측 시 화면 이미지 초기화 (분석 중 메시지 위함)
 
@@ -90,6 +93,7 @@ function App() {
     tempImgForPrediction.src = imgDataUrl;
 
     tempImgForPrediction.onload = async () => {
+      // 이미지가 완전히 로드된 후에 예측을 수행합니다.
       try {
         const results = await predict(tempImgForPrediction);
         setPredictionResult(results); // { totalPresidentProbability, presidentClasses, allClasses }
@@ -98,13 +102,13 @@ function App() {
       } catch (error) {
         alert(`이미지 예측 중 오류 발생: ${error.message}`);
       } finally {
-        setLoading(false);
+        setIsImageAnalyzing(false); // 분석 완료 또는 오류 발생 시 상태 false
       }
     };
     tempImgForPrediction.onerror = (error) => {
       console.error("예측용 이미지 로드 중 오류 발생:", error);
       alert("이미지를 로드할 수 없습니다. 유효한 이미지인지 확인해주세요.");
-      setLoading(false);
+      setIsImageAnalyzing(false); // 오류 발생 시 상태 false
     };
   };
 
@@ -134,7 +138,7 @@ function App() {
   // 웹캠 모드 취소 핸들러 (기존과 동일)
   const handleWebcamCancel = () => {
     setIsWebcamMode(false); // 웹캠 모드 종료
-    setLoading(false); // 로딩 상태 초기화
+    setIsImageAnalyzing(false); // 웹캠 취소 시 이미지 분석 상태도 초기화
   };
 
   // 예측 결과 퍼센트에 따른 유머러스한 문구 반환 함수 (기존과 동일)
@@ -231,6 +235,12 @@ function App() {
     );
   }
 
+  // totalPresidentProbability 값을 안전하게 파싱하고 유효성 검사
+  const presidentProb = predictionResult?.totalPresidentProbability ? parseFloat(predictionResult.totalPresidentProbability) : 0;
+  const displayPresidentProb = isNaN(presidentProb) ? 'N/A' : Math.round(presidentProb * 100) + '%';
+  const humorousMessage = isNaN(presidentProb) ? '예측 결과를 불러올 수 없습니다.' : getHumorousMessage(presidentProb);
+
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
       {/* 테마 토글 버튼 */}
@@ -252,7 +262,7 @@ function App() {
 
       {/* 도사 이미지 또는 모델 로딩 중 메시지 표시 */}
       <div className="my-8 flex items-center justify-center w-40 h-40 md:w-48 md:h-48 rounded-full bg-white dark:bg-gray-800 shadow-lg border-4 border-gray-300 dark:border-gray-700">
-        {!modelLoaded ? ( // 모델이 로드되지 않았을 때
+        {!modelLoaded && isModelLoading ? ( // 모델 로딩 중일 때만 표시
           <p className="text-center text-gray-700 dark:text-gray-300 text-sm md:text-base animate-pulse">모델 로딩 중...</p>
         ) : ( // 모델 로드 완료 시
           <img
@@ -285,7 +295,7 @@ function App() {
         </button>
       </div>
 
-      {loading && (
+      {isImageAnalyzing && ( // 이미지 분석 중일 때만 표시
         <p className="text-lg text-gray-600 dark:text-gray-400 mt-4 animate-pulse text-center w-full">사진 분석 중...</p>
       )}
 
@@ -304,34 +314,52 @@ function App() {
         </div>
       )}
 
-      {/* 예측 결과 표시 부분 (총합 확률과 탑 3 대통령 관상) */}
+      {/* 예측 결과 표시 부분 */}
       {predictionResult && (
         <div className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-xl text-center w-full max-w-xs sm:max-w-sm md:max-w-md">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 dark:text-gray-200">예측 결과</h2>
-
+          
           {/* 대통령 관상 총합 확률 */}
           <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-2">
             <span className="font-semibold text-blue-700 dark:text-blue-300">대통령 관상: </span>{' '}
-            <span className="text-blue-600 font-bold">{Math.round(parseFloat(predictionResult.totalPresidentProbability) * 100)}%</span>
+            <span className="text-blue-600 font-bold">{displayPresidentProb}</span>
           </p>
+          
           {/* 유머러스한 문구 표시 (총합 확률 기반) */}
           <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 mt-4 mb-6">
-            {getHumorousMessage(parseFloat(predictionResult.totalPresidentProbability))}
+            {humorousMessage}
           </p>
 
-          {/* 탑 3 대통령별 상세 확률 표시 */}
+          {/* 개별 대통령 클래스 예측 결과 (상위 3개) */}
           {predictionResult.presidentClasses && predictionResult.presidentClasses.length > 0 && (
-            <div className="mt-6 text-left">
+            <div className="mt-6 text-left border-t border-gray-200 dark:border-gray-700 pt-4">
               <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">
                 {predictionResult.presidentClasses.length > 1 ? '가장 닮은 대통령 TOP 3:' : '가장 닮은 대통령:'}
               </h3>
               <ul className="list-disc list-inside text-gray-600 dark:text-gray-400">
                 {predictionResult.presidentClasses
-                  .sort((a, b) => b.probability - a.probability) // 확률 높은 순으로 정렬
+                  .sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability)) // 확률 높은 순으로 정렬
                   .slice(0, 3) // 상위 3개만 추출
                   .map((p, index) => (
                     <li key={index} className="mb-1">
-                      {p.className}: <span className="font-bold">{Math.round(p.probability * 100)}%</span>
+                      {p.className.replace('대통령_', '')}: <span className="font-bold">{Math.round(parseFloat(p.probability) * 100)}%</span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
+
+          {/* 개별 유명인 클래스 예측 결과 (상위 3개) */}
+          {predictionResult.celebrityClasses && predictionResult.celebrityClasses.length > 0 && (
+            <div className="mt-4 text-left border-t border-gray-200 dark:border-gray-700 pt-4">
+              <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">관련 유명인상 (Top 3)</h3>
+              <ul className="list-disc list-inside text-gray-600 dark:text-gray-400">
+                {predictionResult.celebrityClasses
+                  .sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability)) // 확률 높은 순으로 정렬
+                  .slice(0, 3) // 상위 3개만 추출
+                  .map((p, index) => (
+                    <li key={index} className="mb-1">
+                      {p.className.replace('유명인_', '')}: <span className="font-bold">{Math.round(parseFloat(p.probability) * 100)}%</span>
                     </li>
                   ))}
               </ul>
@@ -351,24 +379,23 @@ function App() {
           </button>
         </div>
       )}
-
       {/* 예측 결과가 없는데 이미지는 업로드 된 경우 (예: '대통령' 클래스가 아닌 다른 클래스로 분류될 경우) */}
-      {uploadedImageUrl && !loading && !predictionResult?.totalPresidentProbability && (
+      {uploadedImageUrl && !isImageAnalyzing && !predictionResult?.totalPresidentProbability && (
           <div className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-xl text-center w-full max-w-xs sm:max-w-sm md:max-w-md">
             <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 dark:text-gray-200">예측 결과</h2>
             <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-2">
               업로드된 사진에서 대통령 관상을 찾을 수 없습니다.
             </p>
             {/* 모든 클래스 결과 (옵션) - 이 부분은 필요하다면 제거하거나 수정할 수 있습니다. */}
-            {predictionResult?.allClasses && predictionResult.allClasses.length > 0 && (
-              <div className="mt-4 text-left">
+            {predictionResult?.allPredictions && predictionResult.allPredictions.length > 0 && (
+              <div className="mt-4 text-left border-t border-gray-200 dark:border-gray-700 pt-4">
                 <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">모든 클래스 확률:</h3>
                 <ul className="list-disc list-inside text-gray-600 dark:text-gray-400">
-                  {predictionResult.allClasses
-                    .sort((a, b) => b.probability - a.probability) // 확률 높은 순으로 정렬
+                  {predictionResult.allPredictions
+                    .sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability)) // 확률 높은 순으로 정렬
                     .map((p, index) => (
                       <li key={index} className="mb-1">
-                        {p.className}: <span className="font-bold">{Math.round(p.probability * 100)}%</span>
+                        {p.className}: <span className="font-bold">{Math.round(parseFloat(p.probability) * 100)}%</span>
                       </li>
                     ))}
                 </ul>
@@ -387,6 +414,13 @@ function App() {
             </button>
           </div>
       )}
+      {/* 예측 결과가 아직 없고, 로딩 중도 아니며, 이미지도 업로드되지 않은 초기 상태 */}
+      {uploadedImageUrl === null && !isModelLoading && !isImageAnalyzing && !predictionResult && (
+        <div className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-xl text-center w-full max-w-xs sm:max-w-sm md:max-w-md">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 dark:text-gray-200">사진을 업로드하거나 촬영하여 관상을 분석해보세요!</h2>
+        </div>
+      )}
+
 
       <p className="mt-8 text-sm text-gray-500 dark:text-gray-400 text-center">
         *사진은 절대 어디에도 저장되지 않습니다.*
