@@ -1,7 +1,7 @@
 // src/utils/modelUtils.js
 import * as tmImage from '@teachablemachine/image';
 
-const MODEL_URL = "https://teachablemachine.withgoogle.com/models/AQniBgBqg/"; // 여기에 본인의 모델 URL을 넣어주세요!
+const MODEL_URL = "https://teachablemachine.withgoogle.com/models/dA_XwNxfT/"; // 여기에 본인의 모델 URL을 넣어주세요!
 
 let model;
 let maxPredictions;
@@ -27,11 +27,36 @@ export async function predict(imageElement) {
   }
   try {
     const prediction = await model.predict(imageElement);
-    // 예측 결과를 클래스 이름과 확률로 가공하여 반환
-    return prediction.map(p => ({
-      className: p.className,
-      probability: p.probability.toFixed(2) // 소수점 2자리까지
-    }));
+
+    // 클래스명 배열 (순서 중요, "이재명"부터 위까지가 대통령)
+    const presidentNames = [
+      "이승만", "윤보선", "박정희", "최규하", "전두환", "노태우", "김영삼",
+      "노무현", "이명박", "문재인", "윤석열", "이재명"
+    ];
+
+    // 대통령 클래스 확률 합계 계산
+    let totalPresidentProbability = 0;
+    const presidentClasses = [];
+
+    prediction.forEach(p => {
+      if (presidentNames.includes(p.className)) {
+        totalPresidentProbability += parseFloat(p.probability);
+        presidentClasses.push({
+          className: p.className,
+          probability: p.probability
+        });
+      }
+    });
+
+    // 전체 결과 반환 (기존 클래스별 확률도 포함)
+    return {
+      totalPresidentProbability: totalPresidentProbability.toFixed(2),
+      presidentClasses,
+      allClasses: prediction.map(p => ({
+        className: p.className,
+        probability: p.probability
+      }))
+    };
   } catch (error) {
     console.error("예측 중 오류 발생:", error);
     throw new Error("이미지 예측에 실패했습니다.");

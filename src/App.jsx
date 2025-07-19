@@ -27,8 +27,7 @@ function App() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? Theme.DARK : Theme.LIGHT;
   });
 
-  // imageRef는 현재 로직에서 직접 predict에 사용되지 않지만, 필요에 따라 유지합니다.
-  const imageRef = useRef(null);
+  const imageRef = useRef(null); // 사용되지 않지만 코드에서 유지
 
   // 컴포넌트 마운트 시 모델 로드
   useEffect(() => {
@@ -46,7 +45,7 @@ function App() {
     initModel();
   }, []);
 
-  // 테마 변경 로직
+  // 테마 변경 로직 (기존과 동일)
   useEffect(() => {
     const root = document.documentElement; // <html> 요소
     localStorage.setItem('theme', theme); // 로컬 스토리지에 테마 저장
@@ -57,7 +56,6 @@ function App() {
       root.classList.remove('dark');
     }
 
-    // 시스템 테마 변경 감지 리스너 (SYSTEM 모드일 때만 작동)
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e) => {
       if (theme === Theme.SYSTEM) {
@@ -73,7 +71,7 @@ function App() {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
 
-  // 테마 토글 함수
+  // 테마 토글 함수 (기존과 동일)
   const toggleTheme = () => {
     setTheme(prevTheme => {
       if (prevTheme === Theme.LIGHT) return Theme.DARK;
@@ -92,13 +90,11 @@ function App() {
     tempImgForPrediction.src = imgDataUrl;
 
     tempImgForPrediction.onload = async () => {
-      // 이미지가 완전히 로드된 후에 예측을 수행합니다.
       try {
-        const predictions = await predict(tempImgForPrediction);
-        const presidentPrediction = predictions.find(p => p.className === '대통령');
-        setPredictionResult(presidentPrediction);
+        const results = await predict(tempImgForPrediction);
+        setPredictionResult(results); // { totalPresidentProbability, presidentClasses, allClasses }
         setUploadedImageUrl(imgDataUrl); // 예측이 완료되면 이미지를 다시 표시
-        console.log("예측 결과 (대통령):", presidentPrediction);
+        console.log("전체 예측 결과:", results);
       } catch (error) {
         alert(`이미지 예측 중 오류 발생: ${error.message}`);
       } finally {
@@ -106,13 +102,13 @@ function App() {
       }
     };
     tempImgForPrediction.onerror = (error) => {
-        console.error("예측용 이미지 로드 중 오류 발생:", error);
-        alert("이미지를 로드할 수 없습니다. 유효한 이미지인지 확인해주세요.");
-        setLoading(false);
+      console.error("예측용 이미지 로드 중 오류 발생:", error);
+      alert("이미지를 로드할 수 없습니다. 유효한 이미지인지 확인해주세요.");
+      setLoading(false);
     };
   };
 
-  // 파일 업로드 핸들러
+  // 파일 업로드 핸들러 (기존과 동일)
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -129,19 +125,19 @@ function App() {
     reader.readAsDataURL(file);
   };
 
-  // 웹캠으로 사진 촬영 후 데이터 전달받는 핸들러
+  // 웹캠으로 사진 촬영 후 데이터 전달받는 핸들러 (기존과 동일)
   const handleWebcamCapture = (imageSrc) => {
     setIsWebcamMode(false); // 웹캠 모드 종료
     processImageForPrediction(imageSrc); // 촬영된 이미지로 예측 시작
   };
 
-  // 웹캠 모드 취소 핸들러
+  // 웹캠 모드 취소 핸들러 (기존과 동일)
   const handleWebcamCancel = () => {
     setIsWebcamMode(false); // 웹캠 모드 종료
     setLoading(false); // 로딩 상태 초기화
   };
 
-  // 예측 결과 퍼센트에 따른 유머러스한 문구 반환 함수 (더 세분화 및 랜덤 선택)
+  // 예측 결과 퍼센트에 따른 유머러스한 문구 반환 함수 (기존과 동일)
   const getHumorousMessage = (probability) => {
     const percentage = Math.round(probability * 100);
 
@@ -221,12 +217,11 @@ function App() {
       selectedMessages = messages['0-9'];
     }
 
-    // 선택된 메시지 배열에서 랜덤으로 하나 선택
     const randomIndex = Math.floor(Math.random() * selectedMessages.length);
     return selectedMessages[randomIndex];
   };
 
-  // 웹캠 모드일 경우 웹캠 컴포넌트만 렌더링
+  // 웹캠 모드일 경우 웹캠 컴포넌트만 렌더링 (기존과 동일)
   if (isWebcamMode) {
     return (
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
@@ -250,7 +245,7 @@ function App() {
       </button>
 
       <h1 className="text-3xl md:text-4xl font-bold mb-2 text-gray-800 dark:text-gray-200 text-center">대통령상 테스트</h1>
-      <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-2 text-center">ai가 분석해주는 관상테스트</p>
+      <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-2 text-center">AI가 분석해주는 관상테스트</p>
       <p className="text-base md:text-lg text-red-600 font-bold mb-6 text-center">
         <span className="text-xl md:text-2xl font-extrabold">0.001%</span>의 사람만이 <span className="underline">대통령의 얼굴</span>을 가졌습니다.
       </p>
@@ -260,22 +255,13 @@ function App() {
         {!modelLoaded ? ( // 모델이 로드되지 않았을 때
           <p className="text-center text-gray-700 dark:text-gray-300 text-sm md:text-base animate-pulse">모델 로딩 중...</p>
         ) : ( // 모델 로드 완료 시
-          <img 
+          <img
             src={dosaimage} // 도사 이미지 사용
-            alt="도사 이미지" 
+            alt="도사 이미지"
             className="rounded-full w-full h-full object-cover" // 부모 div에 꽉 차도록
           />
         )}
       </div>
-
-      {/* 광고 단위 1: 도사 이미지/로딩 메시지 아래 (제거됨) */}
-      {/* <div className="my-4 w-full max-w-sm md:max-w-md bg-white dark:bg-gray-800 p-2 rounded-lg shadow-md text-center">
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">광고</p>
-        <ins className="adsbygoogle"
-             style={{ display: 'block', width: '100%', height: '100px' }}
-             data-ad-client="ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
-             data-ad-slot="YOUR_ADSENSE_AD_SLOT_ID_1"></ins>
-      </div> */}
 
       <div className="flex flex-col sm:flex-row gap-4 mb-4 w-full max-w-xs sm:max-w-md">
         <input
@@ -318,41 +304,40 @@ function App() {
         </div>
       )}
 
-      {/* 예측 결과 표시 부분 (대통령 수치만) */}
+      {/* 예측 결과 표시 부분 (총합 확률과 탑 3 대통령 관상) */}
       {predictionResult && (
         <div className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-xl text-center w-full max-w-xs sm:max-w-sm md:max-w-md">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 dark:text-gray-200">예측 결과</h2>
+
+          {/* 대통령 관상 총합 확률 */}
           <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-2">
-            {/* '대통령' 클래스일 경우 '대통령상'으로 표시 */}
-            <span className="font-semibold">
-              {predictionResult.className === '대통령' ? '대통령상' : predictionResult.className}:
-            </span>{' '}
-            <span className="text-blue-600">{Math.round(predictionResult.probability * 100)}%</span>
+            <span className="font-semibold text-blue-700 dark:text-blue-300">대통령 관상: </span>{' '}
+            <span className="text-blue-600 font-bold">{Math.round(parseFloat(predictionResult.totalPresidentProbability) * 100)}%</span>
           </p>
-          {/* 유머러스한 문구 표시 */}
+          {/* 유머러스한 문구 표시 (총합 확률 기반) */}
           <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 mt-4 mb-6">
-            {getHumorousMessage(predictionResult.probability)}
+            {getHumorousMessage(parseFloat(predictionResult.totalPresidentProbability))}
           </p>
-          <button
-            onClick={() => {
-              setPredictionResult(null);
-              setUploadedImageUrl(null);
-              const fileInput = document.getElementById('file-upload');
-              if (fileInput) fileInput.value = '';
-            }}
-            className="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md w-full max-w-xs mx-auto"
-          >
-            다시 시도
-          </button>
-        </div>
-      )}
-      {/* 예측 결과가 있지만 '대통령' 클래스가 없는 경우 */}
-      {uploadedImageUrl && !loading && !predictionResult && (
-        <div className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-xl text-center w-full max-w-xs sm:max-w-sm md:max-w-md">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 dark:text-gray-200">예측 결과</h2>
-          <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-2">
-            '대통령' 클래스에 대한 예측 결과를 찾을 수 없습니다.
-          </p>
+
+          {/* 탑 3 대통령별 상세 확률 표시 */}
+          {predictionResult.presidentClasses && predictionResult.presidentClasses.length > 0 && (
+            <div className="mt-6 text-left">
+              <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">
+                {predictionResult.presidentClasses.length > 1 ? '가장 닮은 대통령 TOP 3:' : '가장 닮은 대통령:'}
+              </h3>
+              <ul className="list-disc list-inside text-gray-600 dark:text-gray-400">
+                {predictionResult.presidentClasses
+                  .sort((a, b) => b.probability - a.probability) // 확률 높은 순으로 정렬
+                  .slice(0, 3) // 상위 3개만 추출
+                  .map((p, index) => (
+                    <li key={index} className="mb-1">
+                      {p.className}: <span className="font-bold">{Math.round(p.probability * 100)}%</span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
+
           <button
             onClick={() => {
               setPredictionResult(null);
@@ -367,14 +352,41 @@ function App() {
         </div>
       )}
 
-      {/* 광고 단위 2: 페이지 하단 (제거됨) */}
-      {/* <div className="my-8 w-full max-w-sm md:max-w-md bg-white dark:bg-gray-800 p-2 rounded-lg shadow-md text-center">
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">광고</p>
-        <ins className="adsbygoogle"
-             style={{ display: 'block', width: '100%', height: '100px' }}
-             data-ad-client="ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
-             data-ad-slot="YOUR_ADSENSE_AD_SLOT_ID_2"></ins>
-      </div> */}
+      {/* 예측 결과가 없는데 이미지는 업로드 된 경우 (예: '대통령' 클래스가 아닌 다른 클래스로 분류될 경우) */}
+      {uploadedImageUrl && !loading && !predictionResult?.totalPresidentProbability && (
+          <div className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-xl text-center w-full max-w-xs sm:max-w-sm md:max-w-md">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 dark:text-gray-200">예측 결과</h2>
+            <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-2">
+              업로드된 사진에서 대통령 관상을 찾을 수 없습니다.
+            </p>
+            {/* 모든 클래스 결과 (옵션) - 이 부분은 필요하다면 제거하거나 수정할 수 있습니다. */}
+            {predictionResult?.allClasses && predictionResult.allClasses.length > 0 && (
+              <div className="mt-4 text-left">
+                <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">모든 클래스 확률:</h3>
+                <ul className="list-disc list-inside text-gray-600 dark:text-gray-400">
+                  {predictionResult.allClasses
+                    .sort((a, b) => b.probability - a.probability) // 확률 높은 순으로 정렬
+                    .map((p, index) => (
+                      <li key={index} className="mb-1">
+                        {p.className}: <span className="font-bold">{Math.round(p.probability * 100)}%</span>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            )}
+            <button
+              onClick={() => {
+                setPredictionResult(null);
+                setUploadedImageUrl(null);
+                const fileInput = document.getElementById('file-upload');
+                if (fileInput) fileInput.value = '';
+              }}
+              className="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md w-full max-w-xs mx-auto"
+            >
+              다시 시도
+            </button>
+          </div>
+      )}
 
       <p className="mt-8 text-sm text-gray-500 dark:text-gray-400 text-center">
         *사진은 절대 어디에도 저장되지 않습니다.*
