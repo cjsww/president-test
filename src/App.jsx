@@ -320,12 +320,11 @@ function App() {
       {uploadedImageUrl && (
         <div className="mt-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg text-center">
           <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">업로드된 사진</h2>
-          <img
-            src={uploadedImageUrl}
-            alt="Uploaded"
-            // 이미지 높이 제한 및 object-contain 적용
-            className="w-full h-auto max-h-[40vh] object-contain rounded-lg shadow-inner border border-gray-200 dark:border-gray-700 mx-auto"
-          />
+      <img
+        src={uploadedImageUrl}
+        alt="Uploaded"
+        className="w-full h-auto max-h-[30vh] sm:max-h-[40vh] object-contain rounded-lg shadow-inner border border-gray-200 dark:border-gray-700 mx-auto"
+      />
         </div>
       )}
 
