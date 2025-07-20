@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { loadModel, predict } from './utils/modelUtils'; // 모델 로드 및 예측 유틸리티 임포트
 import WebcamCapture from './components/WebcamCapture'; // WebcamCapture 컴포넌트 임포트
 import './index.css'; // Tailwind CSS를 위한 기본 임포트
-import dosaimage from './assets/dosaimage.png'; // 도사 이미지 임포트 (경로 확인 필요)
+import dosaimage from '/dosaimage.png'; // 도사 이미지 임포트 (경로 확인 필요)
 
 // 다크 모드 테마 옵션 정의
 const Theme = {
