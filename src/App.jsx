@@ -441,7 +441,7 @@ function App() {
         *사진은 절대 어디에도 저장되지 않습니다.*
       </p>
       <script async="async" data-cfasync="false" src="//pl27223307.profitableratecpm.com/7bfc07e51ff3651d406b569840aefe7e/invoke.js"></script>
-      <div id="container-7bfc07e51ff3651d406b569840aefe7e"></div>
+      <div class="w-full max-w-sm mx-auto my-4" id="container-7bfc07e51ff3651d406b569840aefe7e"></div>
     </div>
   );
 }
