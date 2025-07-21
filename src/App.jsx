@@ -5,15 +5,9 @@ import ThemeToggleButton from './components/ThemeToggleButton';
 import UploadButtons from './components/UploadButtons';
 import PredictionResult from './components/PredictionResult';
 import { HUMOROUS_MESSAGES } from './constants/messages';
+import { Theme } from './constants/theme';
 import './index.css'; // Tailwind CSS를 위한 기본 임포트
 import dosaimage from '/dosaimage.png'; // 도사 이미지 임포트 (경로 확인 필요)
-
-// 다크 모드 테마 옵션 정의
-const Theme = {
-  SYSTEM: 'system',
-  LIGHT: 'light',
-  DARK: 'dark',
-};
 
 function App() {
   const [modelLoaded, setModelLoaded] = useState(false); // 모델 로드 완료 상태
