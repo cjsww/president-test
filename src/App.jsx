@@ -8,7 +8,7 @@ import { HUMOROUS_MESSAGES } from './constants/messages';
 import { Theme } from './constants/theme';
 import './index.css'; // Tailwind CSS를 위한 기본 임포트
 import dosaimage from '/dosaimage.png'; // 도사 이미지 임포트 (경로 확인 필요)
-import AdFitBanner from './components/AdFitBanner'; // 광고 배너 컴포넌트 임포트
+import {AdFitVerticalBanner, AdFitHorizontalBanner, AdFitMobileBanner} from './components/AdFitBanner'; // 광고 배너 컴포넌트 임포트
 
 function App() {
   const [modelLoaded, setModelLoaded] = useState(false); // 모델 로드 완료 상태
@@ -318,7 +318,21 @@ function App() {
         className="hidden lg:block fixed top-1/2 right-8 -translate-y-1/2 z-40"
         style={{ width: 160, height: 600 }}
       >
-        <AdFitBanner className="w-[160px] h-[600px]" />
+        <AdFitVerticalBanner className="w-[160px] h-[600px]" />
+      </div>
+
+      {/* 하단 가로 배너 광고: PC에서만, 화면 하단 중앙에 고정 */}
+      <div
+        className="hidden lg:flex fixed left-1/2 bottom-4 -translate-x-1/2 z-40 w-[728px] h-[90px] justify-center items-center"
+      >
+        <AdFitHorizontalBanner className="w-[728px] h-[90px]" />
+      </div>
+
+      {/* 모바일 하단 띠 배너: 모바일에서만, 화면 하단 중앙에 고정 */}
+      <div
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 z-40 w-[320px] h-[50px] flex justify-center items-center lg:hidden"
+      >
+        <AdFitMobileBanner />
       </div>
     </div>
   );
