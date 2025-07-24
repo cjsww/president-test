@@ -8,6 +8,7 @@ import { HUMOROUS_MESSAGES } from './constants/messages';
 import { Theme } from './constants/theme';
 import './index.css'; // Tailwind CSS를 위한 기본 임포트
 import dosaimage from '/dosaimage.png'; // 도사 이미지 임포트 (경로 확인 필요)
+import AdFitBanner from './components/AdFitBanner'; // 광고 배너 컴포넌트 임포트
 
 function App() {
   const [modelLoaded, setModelLoaded] = useState(false); // 모델 로드 완료 상태
@@ -190,124 +191,135 @@ function App() {
   const humorousMessage = isNaN(presidentProb) ? '예측 결과를 불러올 수 없습니다.' : getHumorousMessage(presidentProb);
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col items-center justify-center p-2 sm:p-4">
-      {/* 테마 토글 버튼 */}
-      <ThemeToggleButton theme={theme} toggleTheme={toggleTheme} />
+    <div className="relative min-h-screen bg-gray-100 dark:bg-gray-900">
+      {/* 메인 콘텐츠: 항상 화면 중앙 */}
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        {/* 테마 토글 버튼 */}
+        <ThemeToggleButton theme={theme} toggleTheme={toggleTheme} />
 
-      {/* 제목/부제목/강조문구 */}
-      <h1 className="text-3xl md:text-4xl font-bold mb-1 sm:mb-2 text-gray-800 dark:text-gray-200 text-center">대통령상 테스트</h1>
-      <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-1 sm:mb-2 text-center">AI가 분석해주는 관상테스트</p>
-      <p className="text-base md:text-lg text-red-600 font-bold mb-4 sm:mb-6 text-center">
-        <span className="text-xl md:text-2xl font-extrabold">0.001%</span>의 사람만이 <span className="underline">대통령의 얼굴</span>을 가졌습니다.
-      </p>
+        {/* 제목/부제목/강조문구 */}
+        <h1 className="text-3xl md:text-4xl font-bold mb-1 sm:mb-2 text-gray-800 dark:text-gray-200 text-center">대통령상 테스트</h1>
+        <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-1 sm:mb-2 text-center">AI가 분석해주는 관상테스트</p>
+        <p className="text-base md:text-lg text-red-600 font-bold mb-4 sm:mb-6 text-center">
+          <span className="text-xl md:text-2xl font-extrabold">0.001%</span>의 사람만이 <span className="underline">대통령의 얼굴</span>을 가졌습니다.
+        </p>
 
-      {/* 도사 이미지 또는 모델 로딩 중 메시지 */}
-      {!predictionResult && (
-        <div className="my-8 flex items-center justify-center w-40 h-40 md:w-48 md:h-48 rounded-full bg-white dark:bg-gray-800 shadow-lg border-4 border-gray-300 dark:border-gray-700">
-          {!modelLoaded && isModelLoading ? (
-            <p className="text-center text-gray-700 dark:text-gray-300 text-sm md:text-base animate-pulse">모델 로딩 중...</p>
-          ) : (
-            <img
-              src={dosaimage}
-              alt="도사 이미지"
-              className="rounded-full w-full h-full object-cover"
-            />
-          )}
-        </div>
-      )}
+        {/* 도사 이미지 또는 모델 로딩 중 메시지 */}
+        {!predictionResult && (
+          <div className="my-8 flex items-center justify-center w-40 h-40 md:w-48 md:h-48 rounded-full bg-white dark:bg-gray-800 shadow-lg border-4 border-gray-300 dark:border-gray-700">
+            {!modelLoaded && isModelLoading ? (
+              <p className="text-center text-gray-700 dark:text-gray-300 text-sm md:text-base animate-pulse">모델 로딩 중...</p>
+            ) : (
+              <img
+                src={dosaimage}
+                alt="도사 이미지"
+                className="rounded-full w-full h-full object-cover"
+              />
+            )}
+          </div>
+        )}
 
-      {/* 파일 업로드 및 카메라 촬영 버튼 그룹 */}
-      {!predictionResult && (
-        <UploadButtons
-          onFileUpload={handleImageUpload}
-          onCameraClick={() => setIsWebcamMode(true)}
-        />
-      )}
-
-      {/* 이미지 분석 중 메시지 */}
-      {isImageAnalyzing && (
-        <p className="text-lg text-gray-600 dark:text-gray-400 mt-4 animate-pulse text-center w-full">사진 분석 중...</p>
-      )}
-
-      {/* 예측용 숨겨진 이미지 태그 */}
-      <img ref={imageRef} alt="Hidden for prediction" style={{ display: 'none' }} />
-
-      {/* 업로드/촬영된 이미지를 보여주는 부분 */}
-      {uploadedImageUrl && (
-        <div className="mt-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg text-center">
-          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">업로드된 사진</h2>
-          <img
-            src={uploadedImageUrl}
-            alt="Uploaded"
-            className="w-full h-auto max-h-[30vh] sm:max-h-[40vh] object-contain rounded-lg shadow-inner border border-gray-200 dark:border-gray-700 mx-auto"
+        {/* 파일 업로드 및 카메라 촬영 버튼 그룹 */}
+        {!predictionResult && (
+          <UploadButtons
+            onFileUpload={handleImageUpload}
+            onCameraClick={() => setIsWebcamMode(true)}
           />
-        </div>
-      )}
+        )}
 
-      {/* 예측 결과 표시 부분 */}
-      {predictionResult && (
-        <PredictionResult
-          displayPresidentProb={displayPresidentProb}
-          humorousMessage={humorousMessage}
-          presidentClasses={predictionResult.presidentClasses}
-          celebrityClasses={predictionResult.celebrityClasses}
-          onRetry={() => {
-            setPredictionResult(null);
-            setUploadedImageUrl(null);
-            const fileInput = document.getElementById('file-upload');
-            if (fileInput) fileInput.value = '';
-          }}
-        />
-      )}
+        {/* 이미지 분석 중 메시지 */}
+        {isImageAnalyzing && (
+          <p className="text-lg text-gray-600 dark:text-gray-400 mt-4 animate-pulse text-center w-full">사진 분석 중...</p>
+        )}
 
-      {/* 예측 결과가 없는데 이미지는 업로드 된 경우 */}
-      {uploadedImageUrl && !isImageAnalyzing && !predictionResult?.totalPresidentProbability && (
-        <div className="mt-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl text-center w-full max-w-xs sm:max-w-sm md:max-w-md">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 dark:text-gray-200">예측 결과</h2>
-          <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-2">
-            업로드된 사진에서 대통령 관상을 찾을 수 없습니다.
-          </p>
-          {predictionResult?.allPredictions && predictionResult.allPredictions.length > 0 && (
-            <div className="mt-4 text-left border-t border-gray-200 dark:border-gray-700 pt-4">
-              <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">모든 클래스 확률:</h3>
-              <ul className="list-disc list-inside text-gray-600 dark:text-gray-400">
-                {predictionResult.allPredictions
-                  .sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability))
-                  .map((p, index) => (
-                    <li key={index} className="mb-1">
-                      {p.className}: <span className="font-bold">{Math.round(parseFloat(p.probability) * 100)}%</span>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          )}
-          <button
-            onClick={() => {
+        {/* 예측용 숨겨진 이미지 태그 */}
+        <img ref={imageRef} alt="Hidden for prediction" style={{ display: 'none' }} />
+
+        {/* 업로드/촬영된 이미지를 보여주는 부분 */}
+        {uploadedImageUrl && (
+          <div className="mt-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg text-center">
+            <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">업로드된 사진</h2>
+            <img
+              src={uploadedImageUrl}
+              alt="Uploaded"
+              className="w-full h-auto max-h-[30vh] sm:max-h-[40vh] object-contain rounded-lg shadow-inner border border-gray-200 dark:border-gray-700 mx-auto"
+            />
+          </div>
+        )}
+
+        {/* 예측 결과 표시 부분 */}
+        {predictionResult && (
+          <PredictionResult
+            displayPresidentProb={displayPresidentProb}
+            humorousMessage={humorousMessage}
+            presidentClasses={predictionResult.presidentClasses}
+            celebrityClasses={predictionResult.celebrityClasses}
+            onRetry={() => {
               setPredictionResult(null);
               setUploadedImageUrl(null);
               const fileInput = document.getElementById('file-upload');
               if (fileInput) fileInput.value = '';
             }}
-            className="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md w-full max-w-xs mx-auto"
-          >
-            다시 시도
-          </button>
-        </div>
-      )}
+          />
+        )}
 
-      {/* 초기 상태 안내 */}
-      {uploadedImageUrl === null && !isModelLoading && !isImageAnalyzing && !predictionResult && (
-        <div className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-xl text-center w-full max-w-xs sm:max-w-sm md:max-w-md">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 dark:text-gray-200">사진을 업로드하거나 촬영하여 관상을 분석해보세요!</h2>
-        </div>
-      )}
+        {/* 예측 결과가 없는데 이미지는 업로드 된 경우 */}
+        {uploadedImageUrl && !isImageAnalyzing && !predictionResult?.totalPresidentProbability && (
+          <div className="mt-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl text-center w-full max-w-xs sm:max-w-sm md:max-w-md">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 dark:text-gray-200">예측 결과</h2>
+            <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-2">
+              업로드된 사진에서 대통령 관상을 찾을 수 없습니다.
+            </p>
+            {predictionResult?.allPredictions && predictionResult.allPredictions.length > 0 && (
+              <div className="mt-4 text-left border-t border-gray-200 dark:border-gray-700 pt-4">
+                <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">모든 클래스 확률:</h3>
+                <ul className="list-disc list-inside text-gray-600 dark:text-gray-400">
+                  {predictionResult.allPredictions
+                    .sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability))
+                    .map((p, index) => (
+                      <li key={index} className="mb-1">
+                        {p.className}: <span className="font-bold">{Math.round(parseFloat(p.probability) * 100)}%</span>
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            )}
+            <button
+              onClick={() => {
+                setPredictionResult(null);
+                setUploadedImageUrl(null);
+                const fileInput = document.getElementById('file-upload');
+                if (fileInput) fileInput.value = '';
+              }}
+              className="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out shadow-md w-full max-w-xs mx-auto"
+            >
+              다시 시도
+            </button>
+          </div>
+        )}
 
-      {/* 개인정보 보호 문구 */}
-      <p className="mt-8 text-sm text-gray-500 dark:text-gray-400 text-center">
-        *사진은 절대 어디에도 저장되지 않습니다.*
-      </p>
-      {/* <script async="async" data-cfasync="false" src="//pl27223307.profitableratecpm.com/7bfc07e51ff3651d406b569840aefe7e/invoke.js"></script>
-      <div className="w-full max-w-sm mx-auto my-4" id="container-7bfc07e51ff3651d406b569840aefe7e"></div> */}
+        {/* 초기 상태 안내 */}
+        {uploadedImageUrl === null && !isModelLoading && !isImageAnalyzing && !predictionResult && (
+          <div className="mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-xl text-center w-full max-w-xs sm:max-w-sm md:max-w-md">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 dark:text-gray-200">사진을 업로드하거나 촬영하여 관상을 분석해보세요!</h2>
+          </div>
+        )}
+
+        {/* 개인정보 보호 문구 */}
+        <p className="mt-8 text-sm text-gray-500 dark:text-gray-400 text-center">
+          *사진은 절대 어디에도 저장되지 않습니다.*
+        </p>
+        {/* <script async="async" data-cfasync="false" src="//pl27223307.profitableratecpm.com/7bfc07e51ff3651d406b569840aefe7e/invoke.js"></script>
+        <div className="w-full max-w-sm mx-auto my-4" id="container-7bfc07e51ff3651d406b569840aefe7e"></div> */}
+      </div>
+
+      {/* 오른쪽 세로 배너 광고: PC에서만, 화면 오른쪽 세로 중앙에 고정 */}
+      <div
+        className="hidden lg:block fixed top-1/2 right-8 -translate-y-1/2 z-40"
+        style={{ width: 160, height: 600 }}
+      >
+        <AdFitBanner className="w-[160px] h-[600px]" />
+      </div>
     </div>
   );
 }
