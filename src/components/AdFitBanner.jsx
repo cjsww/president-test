@@ -1,20 +1,13 @@
 import { useEffect, useRef } from 'react';
 
-function loadKakaoScriptOnce() {
-  if (!window.__kakaoAdfitScriptLoaded) {
-    const script = document.createElement("script");
-    script.src = "//t1.daumcdn.net/kas/static/ba.min.js";
-    script.async = true;
-    document.body.appendChild(script);
-    window.__kakaoAdfitScriptLoaded = true;
-  }
-}
-
 export function AdFitVerticalBanner() {
   const adRef = useRef(null);
 
   useEffect(() => {
-    loadKakaoScriptOnce();
+    const script = document.createElement("script");
+    script.src = "//t1.daumcdn.net/kas/static/ba.min.js";
+    script.async = true;
+    adRef.current?.appendChild(script);
   }, []);
 
   return (
@@ -33,7 +26,10 @@ export function AdFitHorizontalBanner() {
   const adRef = useRef(null);
 
   useEffect(() => {
-    loadKakaoScriptOnce();
+    const script = document.createElement("script");
+    script.src = "//t1.daumcdn.net/kas/static/ba.min.js";
+    script.async = true;
+    adRef.current?.appendChild(script);
   }, []);
 
   return (
@@ -48,11 +44,15 @@ export function AdFitHorizontalBanner() {
   );
 }
 
+// 모바일용 띠 배너 컴포넌트 추가
 export function AdFitMobileBanner() {
   const adRef = useRef(null);
 
   useEffect(() => {
-    loadKakaoScriptOnce();
+    const script = document.createElement("script");
+    script.src = "//t1.daumcdn.net/kas/static/ba.min.js";
+    script.async = true;
+    adRef.current?.appendChild(script);
   }, []);
 
   return (
