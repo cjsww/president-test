@@ -333,7 +333,6 @@ function App() {
       >
         <AdFitMobileBanner />
       </div>
-      <script type='text/javascript' src='//pl27223461.profitableratecpm.com/2b/7a/33/2b7a33c0b505237f69bc91d7485e2e50.js' async></script>
     </div>
   );
 }
