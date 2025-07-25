@@ -200,7 +200,7 @@ function App() {
           <ThemeToggleButton theme={theme} toggleTheme={toggleTheme} />
 
           {/* 제목/부제목/강조문구 */}
-          <h1 className="text-3xl md:text-4xl font-bold mb-1 sm:mb-2 text-gray-800 dark:text-gray-200 text-center">대통령상 테스트</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-1 sm:mb-2 text-gray-800 dark:text-gray-200 text-center">대통령 관상 테스트</h1>
           <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-1 sm:mb-2 text-center">AI가 분석해주는 관상테스트</p>
           <p className="text-base md:text-lg text-red-600 font-bold mb-4 sm:mb-6 text-center">
             <span className="text-xl md:text-2xl font-extrabold">0.001%</span>의 사람만이 <span className="underline">대통령의 얼굴</span>을 가졌습니다.
